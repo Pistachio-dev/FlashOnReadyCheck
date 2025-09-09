@@ -14,5 +14,6 @@ namespace FlashOnReadyCheck
         [PluginService] internal static IPluginLog Log { get; private set; } = null!;
         [PluginService] internal static IChatGui Chat { get; private set; } = null!;
         [PluginService] internal static IFramework Framework { get; private set; } = null!;
+        [PluginService] internal static IGameInteropProvider Hook { get; private set; } = null!;
     }
 }

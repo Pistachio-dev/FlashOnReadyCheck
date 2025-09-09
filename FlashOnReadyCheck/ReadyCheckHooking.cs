@@ -1,15 +1,7 @@
-using System;
-using System.Runtime.InteropServices;
-
-using Dalamud.Game;
+// Most copied from https://github.com/Infiziert90/ReadyCheckHelper
 using Dalamud.Hooking;
-using Dalamud.Logging;
-
-using FFXIVClientStructs.FFXIV.Client.Game.Group;
-using FFXIVClientStructs.FFXIV.Client.System.Memory;
-using FFXIVClientStructs.FFXIV.Client.UI;
-using FFXIVClientStructs.FFXIV.Component.GUI;
-
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using System;
 
 namespace FlashOnReadyCheck
 {
@@ -23,62 +15,53 @@ namespace FlashOnReadyCheck
 
         private delegate void ReadyCheckFuncDelegate(IntPtr ptr);
 
-        public static event EventHandler OnReadyCheckInitiated;
-        public static event EventHandler OnReadyCheckComplete;
+        //	Events
+        public static event EventHandler ReadyCheckInitiatedEvent;
 
-        public static void Init(SigScanner sigScanner)
+        public static event EventHandler ReadyCheckCompleteEvent;
+
+        private static Hook<AgentReadyCheck.Delegates.InitiateReadyCheck> MReadyCheckInitiatedHook;
+        private static Hook<AgentReadyCheck.Delegates.EndReadyCheck> MReadyCheckEndHook;
+
+        public static void AddOnReadyCheckStart(Action action)
         {
-            if (sigScanner == null)
-            {
-                throw new Exception("Error in \"MemoryHandler.Init()\": A null SigScanner was passed!");
-            }
+            ReadyCheckInitiatedEvent += (caller, args) => action();
+        }
 
-            //	Get Function Pointers, etc.
+        public static unsafe void Init()
+        {
             try
             {
-                //	When a ready check has been initiated by anyone.
-                mfpOnReadyCheckInitiated = sigScanner.ScanText("40 ?? 48 83 ?? ?? 48 8B ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? 33 C0 ?? 89");
-                if (mfpOnReadyCheckInitiated != IntPtr.Zero)
-                {
-                    // Unless I add <TargetFramework>net6.0-windows</TargetFramework> in the .csproj, FromAddress is not found
-                    mReadyCheckInitiatedHook = Hook<ReadyCheckFuncDelegate>.FromAddress(mfpOnReadyCheckInitiated, ReadyCheckInitiatedDetour);
-                    mReadyCheckInitiatedHook.Enable();
-                }
+                MReadyCheckInitiatedHook = Svc.Hook.HookFromAddress<AgentReadyCheck.Delegates.InitiateReadyCheck>(AgentReadyCheck.MemberFunctionPointers.InitiateReadyCheck, ReadyCheckInitiatedDetour);
+                MReadyCheckInitiatedHook.Enable();
 
-                //	When a ready check has been completed and processed.
-                mfpOnReadyCheckEnd = sigScanner.ScanText("40 ?? 53 48 ?? ?? ?? ?? 48 81 ?? ?? ?? ?? ?? 48 8B ?? ?? ?? ?? ?? 48 33 ?? ?? 89 ?? ?? ?? 83 ?? ?? ?? 48 8B ?? 75 ?? 48");
-                if (mfpOnReadyCheckEnd != IntPtr.Zero)
-                {
-                    mReadyCheckEndHook = Hook<ReadyCheckFuncDelegate>.FromAddress(mfpOnReadyCheckEnd, ReadyCheckEndDetour);
-                    mReadyCheckEndHook.Enable();
-                }
+                MReadyCheckEndHook = Svc.Hook.HookFromAddress<AgentReadyCheck.Delegates.EndReadyCheck>(AgentReadyCheck.MemberFunctionPointers.EndReadyCheck, ReadyCheckEndDetour);
+                MReadyCheckEndHook.Enable();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception($"Error in \"MemoryHandler.Init()\" while searching for required function signatures; this probably means that the plugin needs to be updated due to changes in Final Fantasy XIV.  Raw exception as follows:\r\n{e}");
+                throw new Exception($"Error while searching for required function signatures; this probably means that the plugin needs to be updated due to changes in Final Fantasy XIV.\n{ex}");
             }
         }
 
-        private static void ReadyCheckInitiatedDetour(IntPtr ptr)
+        public static void Uninit()
         {
-            mReadyCheckInitiatedHook.Original(ptr);
-            OnReadyCheckInitiated?.Invoke(null, EventArgs.Empty);
+            MReadyCheckInitiatedHook?.Dispose();
+            MReadyCheckEndHook?.Dispose();
         }
 
-        private static void ReadyCheckEndDetour(IntPtr ptr)
+        private static unsafe void ReadyCheckInitiatedDetour(AgentReadyCheck* ptr)
         {
-            mReadyCheckEndHook.Original(ptr);
-            OnReadyCheckComplete?.Invoke(null, EventArgs.Empty);
+            MReadyCheckInitiatedHook.Original(ptr);
+            ReadyCheckInitiatedEvent?.Invoke(null, EventArgs.Empty);
         }
 
-        public static void Dispose()
+        private static unsafe void ReadyCheckEndDetour(AgentReadyCheck* ptr)
         {
-            mReadyCheckInitiatedHook?.Disable();
-            mReadyCheckEndHook?.Disable();
-            mReadyCheckInitiatedHook?.Dispose();
-            mReadyCheckEndHook?.Dispose();
-            mReadyCheckInitiatedHook = null;
-            mReadyCheckEndHook = null;
+            MReadyCheckEndHook.Original(ptr);
+
+            //	Update our copy of the data one last time.
+            ReadyCheckCompleteEvent?.Invoke(null, EventArgs.Empty);
         }
     }
 }
