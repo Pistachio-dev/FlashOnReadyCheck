@@ -1,8 +1,8 @@
 {
   "Author": "Pistachio Herald",
   "Name": "Flash On Ready Check",
-  "Punchline": "Flash FFXIV's program on the taskbar when you a /readycheck starts",
-  "Description": "Flash FFXIV's program on the taskbar when you a /readycheck starts. Use /readyflash to test the window flashing.",
+  "Punchline": "I'm ready, I was just alt tabbed!",
+  "Description": "Flash FFXIV's program on the taskbar when a /readycheck starts. Use /readyflash to test the window flashing.",
   "ApplicableVersion": "any",
   "Tags": [
     "ready",

@@ -1,3 +1,4 @@
+using Dalamud.Game;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -13,9 +14,10 @@ public sealed class Plugin : IDalamudPlugin
 
     private const string TestFlashingCommand = "/readyflash";
 
-    public Plugin(IDalamudPluginInterface pluginInterface)
+    public Plugin(IDalamudPluginInterface pluginInterface, SigScanner sigScanner)
     {
         pluginInterface.Create<Svc>();
+        ReadyCheckHooking.Init(sigScanner);
 
         Svc.CommandManager.AddHandler(TestFlashingCommand, new CommandInfo(OnTestFlashingCommand)
         {
@@ -27,6 +29,7 @@ public sealed class Plugin : IDalamudPlugin
     public void Dispose()
     {
         Svc.CommandManager.RemoveHandler(TestFlashingCommand);
+        ReadyCheckHooking.Dispose();
     }
 
     private void OnTestFlashingCommand(string command, string args)
