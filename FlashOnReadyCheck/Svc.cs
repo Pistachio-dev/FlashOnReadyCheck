@@ -4,7 +4,7 @@ using Dalamud.Plugin.Services;
 
 namespace FlashOnReadyCheck
 {
-    public static class Svc
+    public class Svc
     {
         [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
         [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
@@ -12,5 +12,7 @@ namespace FlashOnReadyCheck
         [PluginService] internal static IClientState ClientState { get; private set; } = null!;
         [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
         [PluginService] internal static IPluginLog Log { get; private set; } = null!;
+        [PluginService] internal static IChatGui Chat { get; private set; } = null!;
+        [PluginService] internal static IFramework Framework { get; private set; } = null!;
     }
 }
