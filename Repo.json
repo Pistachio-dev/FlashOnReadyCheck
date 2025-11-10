@@ -18,7 +18,12 @@
     "TestingAssemblyVersion": "0.1.0.0",
     "TestingChangelog": "- Initial Release",
     "DownloadLinkTesting": "https://github.com/Pistachio-dev/FlashOnReadyCheck/releases/download/0.1.0.0_testing/FlashOnReadyCheck.zip",
-    "LastUpdate": 1757450213,
+    "DalamudApiLevel": 13,
+    "AssemblyVersion": "0.1.0.0",
+    "Changelog": "- Initial Release",
+    "DownloadLinkInstall": "https://github.com/Pistachio-dev/FlashOnReadyCheck/releases/download/0.1.0.0_release/FlashOnReadyCheck.zip",
+    "DownloadLinkUpdate": "https://github.com/Pistachio-dev/FlashOnReadyCheck/releases/download/0.1.0.0_release/FlashOnReadyCheck.zip",
+    "LastUpdate": 1762767193,
     "InternalName": "FlashOnReadyCheck"
   }
 ]
