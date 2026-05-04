@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
       <TargetFramework>net10.0-windows</TargetFramework>
-      <Version>0.0.0.1</Version>
+      <Version>0.1.0.1</Version>
       <Authors>Pistachio Herald</Authors>
     <Description>Pass those ready checks, even when alt-tabbed.</Description>
     <PackageProjectUrl>https://github.com/Pistachio-dev/FlashOnReadyCheck</PackageProjectUrl>
